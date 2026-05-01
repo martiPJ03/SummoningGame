@@ -36662,3 +36662,11 @@ Library/UIElements/EditorWindows/UnityEditor.PreferenceSettingsWindow.pref
 Library/UIElements/EditorWindows/UnityEditor.ProjectSettingsWindow.pref
 Library/UndoData.bin
 Library/UndoStack.bin
+*.log
+*.log
+/Library
+/Library
+/Logs
+/Temp
+/Logs
+/Logs
