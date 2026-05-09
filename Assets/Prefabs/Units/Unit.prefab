@@ -15,6 +15,10 @@ GameObject:
   - component: {fileID: 3001972421632667229}
   - component: {fileID: 7460898216894157489}
   - component: {fileID: 6239058312163007383}
+  - component: {fileID: 4721278444762469206}
+  - component: {fileID: 4432416489226376287}
+  - component: {fileID: 2148562861361554144}
+  - component: {fileID: 4526593856483695493}
   m_Layer: 3
   m_Name: Unit
   m_TagString: Untagged
@@ -189,13 +193,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0f4bc3f2bab33cd49ac4371f14e8e49d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OrderIndicator
-  lineWidth: 0.1
-  pathResolution: 30
-  moveSprite: {fileID: 21300000, guid: aaf34a74322252b48afbe0ca2e6b7567, type: 3}
-  attackSprite: {fileID: 5596500548706431415, guid: f15bc990f796083478819df370ea67ff, type: 3}
-  iconScale: 1
-  fadeDuration: 0.4
-  fadeDelay: 0.15
 --- !u!61 &6239058312163007383
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -242,6 +239,61 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 0.90625, y: 0.5625}
   m_EdgeRadius: 0
+--- !u!114 &4721278444762469206
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 321801668345209287}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0270eace8d4cb7644bfd94b51dc5cd7d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OrderIndicatorState
+--- !u!114 &4432416489226376287
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 321801668345209287}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e46587751ad43a44f995533cfabd3042, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OrderPathLine
+  lineWidth: 0.06
+  pathResolution: 60
+--- !u!114 &2148562861361554144
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 321801668345209287}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 050b9ecb206dc7449bce5cb275b281d0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OrderIcon
+  moveSprite: {fileID: 21300000, guid: aaf34a74322252b48afbe0ca2e6b7567, type: 3}
+  attackSprite: {fileID: 5596500548706431415, guid: f15bc990f796083478819df370ea67ff, type: 3}
+  iconScale: 0.75
+--- !u!114 &4526593856483695493
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 321801668345209287}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d1ea602ea0c6c944f99e871e7a9c6a7e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OrderIndicatorFader
+  fadeDuration: 0.4
+  fadeDelay: 0.15
 --- !u!1 &5923160931599827598
 GameObject:
   m_ObjectHideFlags: 0

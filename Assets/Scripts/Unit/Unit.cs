@@ -193,7 +193,7 @@ public class Unit : MonoBehaviour
         {
             // Perseguir al objetivo
             agent.SetDestination(CurrentTarget.transform.position);
-            FlipToward(CurrentTarget.transform.position);
+            FlipTowardVelocity();
         }
         else
         {

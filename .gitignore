@@ -36677,3 +36677,7 @@ Logs/AssetImportWorker1.log
 Logs/AssetImportWorker1-prev.log
 Logs/AssetImportWorker0.log
 Logs/AssetImportWorker0-prev.log
+/.vs/CopilotSnapshots
+/.vs/SummoningGame.slnx/copilot-chat
+/.vs/SummoningGame.slnx/FileContentIndex
+/Logs

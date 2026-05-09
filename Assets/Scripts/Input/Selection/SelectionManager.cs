@@ -2,10 +2,8 @@ using NUnit.Framework.Internal;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.AI;
+using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
-using UnityEngine.UI;
-using UnityEngine.UIElements.Experimental;
 
 /// <summary>
 /// Gestiona toda la selección de unidades del jugador al estilo RTS:
@@ -123,7 +121,7 @@ public class SelectionManager : MonoBehaviour
         {
             if (_isDragging)
                 FinalizeDragSelection();
-            else
+            else if (!EventSystem.current.IsPointerOverGameObject())
                 HandleSingleClick();
 
             _isDragging = false;
@@ -354,8 +352,7 @@ public class SelectionManager : MonoBehaviour
 
         Vector2 finalFacing = hasDrag ? facingDir : Vector2.zero;
 
-        TacticalPauseManager.Instance.IssueMoveOrder(unit, destination, finalFacing);
-        
+        unit.OrderMoveTo(destination, finalFacing);
         indicator?.ShowMove(destination, finalFacing, preview);
     }
 
@@ -367,7 +364,7 @@ public class SelectionManager : MonoBehaviour
     {
         foreach (var unit in GetAliveSelected())
         {
-            TacticalPauseManager.Instance.IssueAttackOrder(unit, target);
+            unit.OrderAttack(target);
             // Indicador: línea roja + espada
             var indicator = unit.GetComponent<OrderIndicator>();
             if (indicator != null)
