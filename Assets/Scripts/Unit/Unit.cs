@@ -200,7 +200,6 @@ public class Unit : MonoBehaviour
             // En rango → detener y atacar
             agent.ResetPath();
             FlipToward(CurrentTarget.transform.position);
-
             if (attackTimer <= 0f)
             {
                 ExecuteAttack();
@@ -276,13 +275,13 @@ public class Unit : MonoBehaviour
         Vector2 targetFacing = target.GetFacingDirection();
         Vector2 attackDirection = ((Vector2)target.transform.position - (Vector2)transform.position).normalized;
 
-        // dot > 0.5  → ataque frontal
+        // dot > 0.5  → miran en misma direccion -> ataque por la espalda
         // dot ≈ 0    → ataque lateral (flanco)
-        // dot < -0.5 → ataque por la espalda
+        // dot < -0.5 → miran en direccion opuesta -> ataque frontal
         float dot = Vector2.Dot(targetFacing, attackDirection);
 
-        if (dot < -0.5f) return target.stats.backMultiplier;
-        if (dot < 0.5f) return target.stats.flankMultiplier;
+        if (dot > 0.5f) return target.stats.backMultiplier;
+        if (dot < 0.5f && dot > -0.5f) return target.stats.flankMultiplier;
         return 1f;
     }
 
@@ -419,8 +418,13 @@ public class Unit : MonoBehaviour
 
     void ClearTarget()
     {
-        CurrentTarget = null;
-        State = UnitState.Idle;
+        if (CurrentTarget != null)
+        {
+            if (CurrentTarget.attackersOnMe.Contains(this))
+                CurrentTarget.attackersOnMe.Remove(this);
+            CurrentTarget = null;
+            State = UnitState.Idle;
+        }
     }
 
     // ─────────────────────────────────────────────────────────────────────────
