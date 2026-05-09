@@ -19,6 +19,7 @@ GameObject:
   - component: {fileID: 4432416489226376287}
   - component: {fileID: 2148562861361554144}
   - component: {fileID: 4526593856483695493}
+  - component: {fileID: 3817332766518387858}
   m_Layer: 3
   m_Name: Unit
   m_TagString: Untagged
@@ -294,6 +295,26 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::OrderIndicatorFader
   fadeDuration: 0.4
   fadeDelay: 0.15
+--- !u!114 &3817332766518387858
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 321801668345209287}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0608c0b5ab0d61e44afa91fc2dd86d53, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UnitHealthBar
+  barWidth: 1
+  barHeight: 0.12
+  yOffset: 0.75
+  allyColor: {r: 0.2, g: 0.85, b: 0.2, a: 1}
+  enemyColor: {r: 0.85, g: 0.15, b: 0.15, a: 1}
+  bgColor: {r: 0.08, g: 0.08, b: 0.08, a: 1}
+  borderColor: {r: 0, g: 0, b: 0, a: 1}
+  sortingOrder: 20
 --- !u!1 &5923160931599827598
 GameObject:
   m_ObjectHideFlags: 0

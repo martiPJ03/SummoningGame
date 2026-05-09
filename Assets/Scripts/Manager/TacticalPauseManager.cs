@@ -52,7 +52,6 @@ public class TacticalPauseManager : MonoBehaviour
         IsPaused = true;
         Time.timeScale = 0f;
         OnPaused?.Invoke();
-        Debug.Log("[TacticalPause] PAUSA activada");
     }
 
     public void Resume()
@@ -61,7 +60,6 @@ public class TacticalPauseManager : MonoBehaviour
         IsPaused = false;
         Time.timeScale = 1f;
         OnResumed?.Invoke();
-        Debug.Log("[TacticalPause] JOC reprès");
     }
 
     public void Toggle()

@@ -975,6 +975,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7990912845046506762, guid: 093465d92e9899a4fbab91761bcb4c01, type: 3}
+      propertyPath: unitName
+      value: Unit2
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -1584,6 +1588,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7990912845046506762, guid: 093465d92e9899a4fbab91761bcb4c01, type: 3}
+      propertyPath: unitName
+      value: Unit1
+      objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 2531972206360092225, guid: 093465d92e9899a4fbab91761bcb4c01, type: 3}
     m_RemovedGameObjects: []
@@ -1640,6 +1648,18 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5615845092074551970, guid: 2ba05c713d6e7b648900563af53e2dff, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6406151467103617661, guid: 2ba05c713d6e7b648900563af53e2dff, type: 3}
+      propertyPath: unitName
+      value: EnemyUnit
+      objectReference: {fileID: 0}
+    - target: {fileID: 6406151467103617661, guid: 2ba05c713d6e7b648900563af53e2dff, type: 3}
+      propertyPath: stats.maxHealth
+      value: 10000
+      objectReference: {fileID: 0}
+    - target: {fileID: 6406151467103617661, guid: 2ba05c713d6e7b648900563af53e2dff, type: 3}
+      propertyPath: stats.attackDamage
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
