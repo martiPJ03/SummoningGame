@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.Events;
@@ -120,6 +121,15 @@ public class Unit : MonoBehaviour
     protected List<Unit> attackersOnMe = new List<Unit>();
     protected Color baseColor;
 
+
+    // ───────────────────────────────────────────────────────────────────────
+    //  PATHPOINTS
+    // ───────────────────────────────────────────────────────────────────────
+    
+    protected List<Vector3> currentPathPoints = new List<Vector3>();
+    protected int currentWaypointIndex = 0;
+    protected bool isFollowingPath = false;
+
     // ───────────────────────────────────────────────────────────────────────
     //  LIFECYCLE
     // ───────────────────────────────────────────────────────────────────────
@@ -190,11 +200,24 @@ public class Unit : MonoBehaviour
     /// <summary>Actualización cuando la unidad se está moviendo.</summary>
     protected virtual void UpdateMoving()
     {
-        // Si llegó al destino → pasar a Idle
+        Debug.Log($"{unitName} está en UpdateMoving. Distancia restante: {agent.remainingDistance}");
+        // Si llegó al destino actual
         if (!agent.pathPending && agent.remainingDistance <= agent.stoppingDistance)
         {
-            agent.ResetPath();
-            State = UnitState.Idle;
+            if (isFollowingPath)
+            {
+                // Avanzamos al siguiente punto
+                currentWaypointIndex++;
+                Debug.Log($"Unit {unitName} reached waypoint {currentWaypointIndex}/{currentPathPoints.Count}");
+                MoveToNextWaypoint();
+            }
+            else
+            {
+                // No hay ruta, nos quedamos quietos
+                agent.ResetPath();
+                Debug.Log($"Unit {unitName} reached destination, switching to Idle");
+                State = UnitState.Idle;
+            }
             return;
         }
 
@@ -269,6 +292,42 @@ public class Unit : MonoBehaviour
         agent.ResetPath();
         ClearTarget();
         State = UnitState.Idle;
+    }
+
+    /// <summary>
+    /// Orden de seguir un path definido por una lista de puntos.
+    /// La unidad recorrerá todos los puntos en orden, pasando por cada waypoint.
+    /// </summary>
+    public virtual void OrderFollowPath(List<Vector2> pathPoints)
+    {
+        if (IsDead || pathPoints == null || pathPoints.Count == 0) return;
+        
+        State = UnitState.Moving;
+
+        ClearTarget();
+
+        // Convertimos y guardamos la ruta
+        currentPathPoints = pathPoints.Select(p => new Vector3(p.x, p.y, 0)).ToList();
+        currentWaypointIndex = 0;
+        isFollowingPath = true;
+
+        // Iniciamos el movimiento al primer punto
+        MoveToNextWaypoint();
+    }
+
+    protected void MoveToNextWaypoint()
+    {
+        if (currentWaypointIndex < currentPathPoints.Count)
+        {
+            agent.SetDestination(currentPathPoints[currentWaypointIndex]);
+            State = UnitState.Moving;
+        }
+        else
+        {
+            // Hemos llegado al final
+            isFollowingPath = false;
+            State = UnitState.Idle;
+        }
     }
 
     // ───────────────────────────────────────────────────────────────────────
@@ -441,14 +500,20 @@ public class Unit : MonoBehaviour
     /// <summary>Limpia el objetivo actual.</summary>
     protected void ClearTarget()
     {
+        // Reseteamos el estado del path cada vez que recibimos una orden nueva
+        isFollowingPath = false;
+        currentWaypointIndex = 0;
+
         if (CurrentTarget != null)
         {
-            // Remover de la lista de atacantes del target
             if (CurrentTarget.attackersOnMe.Contains(this))
                 CurrentTarget.attackersOnMe.Remove(this);
             CurrentTarget = null;
-            State = UnitState.Idle;
         }
+
+        // Solo pasamos a Idle si no estamos en medio de un movimiento 
+        // (opcional, dependiendo de cómo quieras que se sienta el control)
+        if (State != UnitState.Moving) State = UnitState.Idle;
     }
 
     // ───────────────────────────────────────────────────────────────────────

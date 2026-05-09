@@ -56,6 +56,11 @@ public class SelectionManager : MonoBehaviour
     private const float RightDragThresholdPx = 8f;   // píxeles mínimos para activar formation drag
     private const float MinUnitSpacing = 0.9f;  // separación mínima entre unidades
 
+    // ── Path drawing (Shift + Right Click) ────────────────────────────────────
+    private bool _isPathDrawing = false;
+    private List<Vector2> _pathPoints = new List<Vector2>();
+    private const float PathPointSpacing = 0.6f;  // distancia mínima entre puntos del path
+
 
     // ── Acceso de solo lectura a la selección actual ──────────────────────────
 
@@ -137,11 +142,11 @@ public class SelectionManager : MonoBehaviour
     void HandleSingleClick()
     {
         Vector2 worldPos = ScreenToWorld(_dragOriginScreen);
-        Unit clickedUnit = GetUnitAtWorldPos(worldPos);
+        AlliedUnit clickedUnit = GetAlliedUnitAtWorldPos(worldPos);
 
         bool shift = Keyboard.current.leftShiftKey.isPressed || Keyboard.current.rightShiftKey.isPressed;
 
-        if (clickedUnit != null && clickedUnit.side == UnitSide.Player && !clickedUnit.IsDead)
+        if (clickedUnit != null && !clickedUnit.IsDead)
         {
             if (shift)
                 ToggleUnit(clickedUnit);     // Shift+click → toggle
@@ -209,23 +214,55 @@ public class SelectionManager : MonoBehaviour
 
         if (_selected.Count == 0) return;
 
-        // ── MouseRightButton registrar origen, detectar si es enemigo ──────────
-        if (Mouse.current.rightButton.wasPressedThisFrame)
+        bool shift = Keyboard.current.leftShiftKey.isPressed || Keyboard.current.rightShiftKey.isPressed;
+
+        // ── Shift + Right Click para dibujar path ─────────────────────────────────
+        if (shift && Mouse.current.rightButton.wasPressedThisFrame)
+        {
+            _isPathDrawing = true;
+            _pathPoints.Clear();
+            Vector2 worldPos = ScreenToWorld(Mouse.current.position.ReadValue());
+            _pathPoints.Add(worldPos);
+        }
+
+        if (_isPathDrawing && shift && Mouse.current.rightButton.isPressed)
+        {
+            Vector2 currentPos = ScreenToWorld(Mouse.current.position.ReadValue());
+
+            // Agregar punto si está lo suficientemente lejos del último
+            if (_pathPoints.Count == 0 || Vector2.Distance(currentPos, _pathPoints[_pathPoints.Count - 1]) > PathPointSpacing)
+            {
+                _pathPoints.Add(currentPos);
+            }
+        }
+
+        if (_isPathDrawing && shift && Mouse.current.rightButton.wasReleasedThisFrame)
+        {
+            // Terminar el path drawing y enviar la orden
+            if (_pathPoints.Count > 0)
+            {
+                IssuePathFollowOrder(_pathPoints);
+            }
+
+            _isPathDrawing = false;
+            _pathPoints.Clear();
+        }
+
+        // ── Right Click normal (sin Shift) para movimiento en formación ──────────────
+        if (!shift && Mouse.current.rightButton.wasPressedThisFrame)
         {
             _rightDragOriginScreen = Mouse.current.position.ReadValue();
             _rightDragOriginWorld = ScreenToWorld(_rightDragOriginScreen);
             _isRightDragging = true;
             _rightDragThresholdMet = false;
 
-            Unit clicked = GetUnitAtWorldPos(_rightDragOriginWorld);
-            _rightClickWasOnEnemy = clicked != null
-                                 && clicked.side == UnitSide.Enemy
-                                 && !clicked.IsDead;
+            Unit clicked = GetEnemyUnitAtWorldPos(_rightDragOriginWorld);
+            _rightClickWasOnEnemy = clicked != null && !clicked.IsDead;
             _rightClickEnemy = _rightClickWasOnEnemy ? clicked : null;
         }
 
         // ── MouseRightButton mantenido: comprobar si supera el umbral de drag ───────
-        if (_isRightDragging && Mouse.current.rightButton.isPressed)
+        if (_isRightDragging && !shift && Mouse.current.rightButton.isPressed)
         {
             float distanceX = Vector2.Distance(Mouse.current.position.ReadValue(), _rightDragOriginScreen);
             if (!_rightDragThresholdMet && distanceX > RightDragThresholdPx)
@@ -244,7 +281,7 @@ public class SelectionManager : MonoBehaviour
         }
 
         // ── MouseRightButton: resolver la orden ──────────────────────────────────
-        if (Mouse.current.rightButton.wasReleasedThisFrame)
+        if (!shift && Mouse.current.rightButton.wasReleasedThisFrame)
         {
             if (_rightClickWasOnEnemy)
             {
@@ -357,6 +394,37 @@ public class SelectionManager : MonoBehaviour
     }
 
     // ─────────────────────────────────────────────────────────────────────────
+    //  ÓRDENES: SEGUIMIENTO DE PATH
+    // ─────────────────────────────────────────────────────────────────────────
+
+    void IssuePathFollowOrder(List<Vector2> pathPoints)
+    {
+        if (pathPoints == null || pathPoints.Count < 2) return;
+
+        foreach (var unit in GetAliveSelected())
+        {
+            OrderUnitFollowPath(unit, pathPoints);
+        }
+    }
+
+    void OrderUnitFollowPath(Unit unit, List<Vector2> pathPoints)
+    {
+        if (unit == null || unit.IsDead) return;
+
+        // Enviar la orden de seguir el path
+        unit.OrderFollowPath(pathPoints);
+
+        // Mostrar indicador de orden (path line)
+        var indicator = unit.GetComponent<OrderIndicator>();
+        if (indicator != null)
+        {
+            // Mostrar el destino final del path
+            Vector3 finalDestination = new Vector3(pathPoints[pathPoints.Count - 1].x, pathPoints[pathPoints.Count - 1].y, 0);
+            indicator.ShowMove(finalDestination, Vector2.zero, false);
+        }
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
     //  ÓRDENES: ATAQUE
     // ─────────────────────────────────────────────────────────────────────────
 
@@ -379,18 +447,18 @@ public class SelectionManager : MonoBehaviour
     //  GESTIÓN DE LA SELECCIÓN
     // ─────────────────────────────────────────────────────────────────────────
 
-    void SelectOnly(Unit unit)
+    void SelectOnly(AlliedUnit unit)
     {
         DeselectAll();
-        AddToSelection(unit as AlliedUnit);
+        AddToSelection(unit);
     }
 
-    void ToggleUnit(Unit unit)
+    void ToggleUnit(AlliedUnit unit)
     {
-        if (_selected.Contains(unit as AlliedUnit))
-            RemoveFromSelection(unit as AlliedUnit);
+        if (_selected.Contains(unit))
+            RemoveFromSelection(unit);
         else
-            AddToSelection(unit as AlliedUnit);
+            AddToSelection(unit);
     }
 
     void AddToSelection(AlliedUnit unit)
@@ -463,6 +531,50 @@ public class SelectionManager : MonoBehaviour
         return _cam.ScreenToWorldPoint(new Vector3(screenPos.x, screenPos.y, _cam.nearClipPlane));
     }
 
+    AlliedUnit GetAlliedUnitAtWorldPos(Vector2 worldPos)
+    {
+        // Primero intentamos usar la LayerMask configurada (más eficiente).
+        Collider2D hit = Physics2D.OverlapCircle(worldPos, 0.35f, unitLayerMask);
+        if (hit != null)
+        {
+            AlliedUnit unit = hit.GetComponent<AlliedUnit>();
+            if (unit != null) return unit;
+        }
+
+        // Si no encontramos nada con la mask, hacemos un fallback comprobando todos
+        // los colliders cercanos buscando un componente AlliedUnit.
+        Collider2D[] hits = Physics2D.OverlapCircleAll(worldPos, 0.35f);
+        foreach (var hitCollider in hits)
+        {
+            var foundUnit = hitCollider.GetComponent<AlliedUnit>();
+            if (foundUnit != null) return foundUnit;
+        }
+
+        return null;
+    }
+
+    Unit GetEnemyUnitAtWorldPos(Vector2 worldPos)
+    {
+        // Primero intentamos usar la LayerMask configurada (más eficiente).
+        Collider2D hit = Physics2D.OverlapCircle(worldPos, 0.35f, unitLayerMask);
+        if (hit != null)
+        {
+            Unit unit = hit.GetComponent<Unit>();
+            if (unit != null && unit.side == UnitSide.Enemy) return unit;
+        }
+
+        // Si no encontramos nada con la mask, hacemos un fallback comprobando todos
+        // los colliders cercanos buscando un componente Unit con side Enemy.
+        Collider2D[] hits = Physics2D.OverlapCircleAll(worldPos, 0.35f);
+        foreach (var hitCollider in hits)
+        {
+            var foundUnit = hitCollider.GetComponent<Unit>();
+            if (foundUnit != null && foundUnit.side == UnitSide.Enemy) return foundUnit;
+        }
+
+        return null;
+    }
+
     Unit GetUnitAtWorldPos(Vector2 worldPos)
     {
         // Primero intentamos usar la LayerMask configurada (más eficiente).
@@ -486,20 +598,52 @@ public class SelectionManager : MonoBehaviour
 #if UNITY_EDITOR
     void OnDrawGizmos()
     {
-        if (!_isDragging || _cam == null) return;
+        if (!_isDragging && !_isPathDrawing) return;
+        if (_cam == null) _cam = Camera.main;
 
-        Vector2 originWorld = ScreenToWorld(_dragOriginScreen);
-        Vector2 currentWorld = ScreenToWorld(Mouse.current.position.ReadValue());
-        Vector2 center = (originWorld + currentWorld) * 0.5f;
-        Vector2 size = new Vector2(
-            Mathf.Abs(currentWorld.x - originWorld.x),
-            Mathf.Abs(currentWorld.y - originWorld.y)
-        );
+        // Visualizar drag selection rect
+        if (_isDragging)
+        {
+            Vector2 originWorld = ScreenToWorld(_dragOriginScreen);
+            Vector2 currentWorld = ScreenToWorld(Mouse.current.position.ReadValue());
+            Vector2 center = (originWorld + currentWorld) * 0.5f;
+            Vector2 size = new Vector2(
+                Mathf.Abs(currentWorld.x - originWorld.x),
+                Mathf.Abs(currentWorld.y - originWorld.y)
+            );
 
-        Gizmos.color = new Color(0.3f, 1f, 0.3f, 0.2f);
-        Gizmos.DrawCube(center, size);
-        Gizmos.color = new Color(0.3f, 1f, 0.3f, 0.8f);
-        Gizmos.DrawWireCube(center, size);
+            Gizmos.color = new Color(0.3f, 1f, 0.3f, 0.2f);
+            Gizmos.DrawCube(center, size);
+            Gizmos.color = new Color(0.3f, 1f, 0.3f, 0.8f);
+            Gizmos.DrawWireCube(center, size);
+        }
+
+        // Visualizar path drawing
+        if (_isPathDrawing && _pathPoints.Count > 0)
+        {
+            Gizmos.color = new Color(1f, 0.84f, 0f, 0.8f);  // Amarillo dorado
+
+            // Dibujar puntos del path
+            for (int i = 0; i < _pathPoints.Count; i++)
+            {
+                Vector3 pos = new Vector3(_pathPoints[i].x, _pathPoints[i].y, -0.1f);
+                Gizmos.DrawSphere(pos, 0.15f);
+
+                // Dibujar línea entre puntos consecutivos
+                if (i < _pathPoints.Count - 1)
+                {
+                    Vector3 nextPos = new Vector3(_pathPoints[i + 1].x, _pathPoints[i + 1].y, -0.1f);
+                    Gizmos.DrawLine(pos, nextPos);
+                }
+            }
+
+            // Dibujar línea hacia el mouse actual mientras dibuja
+            Vector2 currentMouse = ScreenToWorld(Mouse.current.position.ReadValue());
+            Vector3 currentMousePos = new Vector3(currentMouse.x, currentMouse.y, -0.1f);
+            Vector3 lastPathPoint = new Vector3(_pathPoints[_pathPoints.Count - 1].x, _pathPoints[_pathPoints.Count - 1].y, -0.1f);
+            Gizmos.color = new Color(1f, 0.84f, 0f, 0.4f);  // Más transparente
+            Gizmos.DrawLine(lastPathPoint, currentMousePos);
+        }
     }
 #endif
 }

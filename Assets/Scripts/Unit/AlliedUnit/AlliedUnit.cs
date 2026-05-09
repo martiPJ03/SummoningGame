@@ -85,10 +85,29 @@ public class AlliedUnit : Unit
     /// </summary>
     protected override void UpdateMoving()
     {
-        // Detectar llegada al destino
-        if (!agent.pathPending && agent.remainingDistance <= agent.stoppingDistance)
+        // 1. Si el NavMesh aún está calculando, esperamos
+        if (agent.pathPending) return;
+
+        // 2. ¿Hemos llegado al punto actual?
+        if (agent.remainingDistance <= agent.stoppingDistance + 0.2f)
         {
-            // Aplicar facing deseado antes de pasar a Idle
+            // CASO A: Estamos siguiendo un Path (lista de puntos)
+            if (isFollowingPath)
+            {
+                currentWaypointIndex++;
+
+                // Si quedan más puntos, vamos al siguiente y salimos del método
+                if (currentWaypointIndex < currentPathPoints.Count)
+                {
+                    MoveToNextWaypoint();
+                    return;
+                }
+
+                // Si era el último punto, limpiamos el estado de path y seguimos al giro final
+                isFollowingPath = false;
+            }
+
+            // Aplicar rotación deseada si existe
             if (desiredFacingDirection != Vector2.zero)
                 RotateTowards(desiredFacingDirection);
 

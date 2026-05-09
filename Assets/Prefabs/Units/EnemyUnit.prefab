@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: 6406151467103617661}
   - component: {fileID: 3276731293186644952}
   - component: {fileID: 906602560537443843}
+  - component: {fileID: 1622672024133907809}
   m_Layer: 8
   m_Name: EnemyUnit
   m_TagString: Untagged
@@ -191,7 +192,6 @@ MonoBehaviour:
     backMultiplier: 1.5
     multiFocusBonus: 0.15
   spriteRenderer: {fileID: 6789012589973252031}
-  selectionIndicator: {fileID: 0}
   _state: 0
   onStateChanged:
     m_PersistentCalls:
@@ -242,3 +242,28 @@ MonoBehaviour:
   bgColor: {r: 0.08, g: 0.08, b: 0.08, a: 1}
   borderColor: {r: 0, g: 0, b: 0, a: 1}
   sortingOrder: 20
+--- !u!114 &1622672024133907809
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3549870264182838438}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a9cf7c9801220ba44ae153871b12d59a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HitParticleEmitter
+  particlePrefab: {fileID: 0}
+  colorFrontal: {r: 0.85, g: 0.9, b: 0.95, a: 1}
+  colorFlank: {r: 1, g: 0.65, b: 0.1, a: 1}
+  colorBack: {r: 0.9, g: 0.2, b: 0.2, a: 1}
+  colorKill: {r: 1, g: 0.85, b: 0.1, a: 1}
+  countFrontal: 4
+  countFlank: 7
+  countBack: 11
+  enableScreenShake: 1
+  shakeDuration: 0.1
+  shakeMagnitude: 0.08
+  showDamageNumbers: 0
+  damageNumberPrefab: {fileID: 0}
