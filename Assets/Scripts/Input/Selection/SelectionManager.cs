@@ -35,7 +35,7 @@ public class SelectionManager : MonoBehaviour
 
     // ── Estado interno ────────────────────────────────────────────────────────
 
-    private readonly List<Unit> _selected = new List<Unit>();
+    private readonly List<AlliedUnit> _selected = new List<AlliedUnit>();
 
     private Camera _cam;
     private Vector2 _dragOriginScreen;   // píxeles pantalla donde empezó el drag
@@ -59,7 +59,7 @@ public class SelectionManager : MonoBehaviour
 
     // ── Acceso de solo lectura a la selección actual ──────────────────────────
 
-    public IReadOnlyList<Unit> Selected => _selected;
+    public IReadOnlyList<AlliedUnit> Selected => _selected;
 
     // ─────────────────────────────────────────────────────────────────────────
     //  LIFECYCLE
@@ -181,7 +181,7 @@ public class SelectionManager : MonoBehaviour
 
         foreach (var collider in hits)
         {
-            Unit unit = collider.GetComponent<Unit>();
+            AlliedUnit unit = collider.GetComponent<AlliedUnit>();
             if (unit != null && unit.side == UnitSide.Player && !unit.IsDead)
                 AddToSelection(unit);
         }
@@ -382,18 +382,18 @@ public class SelectionManager : MonoBehaviour
     void SelectOnly(Unit unit)
     {
         DeselectAll();
-        AddToSelection(unit);
+        AddToSelection(unit as AlliedUnit);
     }
 
     void ToggleUnit(Unit unit)
     {
-        if (_selected.Contains(unit))
-            RemoveFromSelection(unit);
+        if (_selected.Contains(unit as AlliedUnit))
+            RemoveFromSelection(unit as AlliedUnit);
         else
-            AddToSelection(unit);
+            AddToSelection(unit as AlliedUnit);
     }
 
-    void AddToSelection(Unit unit)
+    void AddToSelection(AlliedUnit unit)
     {
         if (_selected.Contains(unit)) return;
         _selected.Add(unit);
@@ -401,7 +401,7 @@ public class SelectionManager : MonoBehaviour
     }
 
     /// <summary>Llamado externamente cuando una unidad muere para limpiar la lista.</summary>
-    public void RemoveFromSelection(Unit unit)
+    public void RemoveFromSelection(AlliedUnit unit)
     {
         if (!_selected.Contains(unit)) return;
         _selected.Remove(unit);
@@ -420,12 +420,12 @@ public class SelectionManager : MonoBehaviour
     void SelectAll()
     {
         // Buscamos todas las unidades jugador vivas en la escena
-        foreach (var foundUnit in FindObjectsByType<Unit>(FindObjectsSortMode.None))
+        foreach (var foundUnit in FindObjectsByType<AlliedUnit>(FindObjectsSortMode.None))
             if (foundUnit.side == UnitSide.Player && !foundUnit.IsDead)
                 AddToSelection(foundUnit);
     }
 
-    List<Unit> GetAliveSelected()
+    List<AlliedUnit> GetAliveSelected()
     {
         _selected.RemoveAll(unit => unit == null || unit.IsDead);
         return _selected;
