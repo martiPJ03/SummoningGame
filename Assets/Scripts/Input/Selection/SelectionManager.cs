@@ -59,7 +59,7 @@ public class SelectionManager : MonoBehaviour
     // ── Path drawing (Shift + Right Click) ────────────────────────────────────
     private bool _isPathDrawing = false;
     private List<Vector2> _pathPoints = new List<Vector2>();
-    private const float PathPointSpacing = 0.6f;  // distancia mínima entre puntos del path
+    const float PathPointSpacing = 0.6f;  // distancia mínima entre puntos del path
 
 
     // ── Acceso de solo lectura a la selección actual ──────────────────────────
@@ -414,13 +414,13 @@ public class SelectionManager : MonoBehaviour
         // Enviar la orden de seguir el path
         unit.OrderFollowPath(pathPoints);
 
-        // Mostrar indicador de orden (path line)
+        // Mostrar indicador de orden (path line completo)
         var indicator = unit.GetComponent<OrderIndicator>();
         if (indicator != null)
         {
-            // Mostrar el destino final del path
+            // Mostrar el destino final del path con toda la ruta multi-waypoint
             Vector3 finalDestination = new Vector3(pathPoints[pathPoints.Count - 1].x, pathPoints[pathPoints.Count - 1].y, 0);
-            indicator.ShowMove(finalDestination, Vector2.zero, false);
+            indicator.ShowMultiWaypointMove(finalDestination, pathPoints);
         }
     }
 

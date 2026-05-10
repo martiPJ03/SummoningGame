@@ -96,6 +96,33 @@ public class OrderIcon : MonoBehaviour
 
     void RefreshMove()
     {
+        // Si estamos siguiendo un multi-waypoint path, mostrar la icona solo al final
+        if (_state.PathPoints != null && _state.PathPoints.Count > 0)
+        {
+            RefreshMultipleWaypointMove();
+            return;
+        } else
+        {
+            RefreshNormalMove();
+        }
+    }
+
+    private void RefreshMultipleWaypointMove()
+    {
+        Vector2 lastWaypoint = _state.PathPoints[_state.PathPoints.Count - 1];
+        _renderer.transform.position = new Vector3(lastWaypoint.x, lastWaypoint.y, -0.1f);
+        // Inferir facing del darrer segment del path
+        Vector2 facing = _state.FacingDir;
+        if (_state.PathPoints.Count >= 2)
+        {
+            Vector2 lastSeg = _state.PathPoints[_state.PathPoints.Count - 1] - _state.PathPoints[_state.PathPoints.Count - 2];
+            facing = lastSeg.normalized;
+        }
+        ApplyFacingRotation(facing);
+    }
+
+    private void RefreshNormalMove()
+    {
         if (_state.FacingLocked)
         {
             _renderer.transform.position = new Vector3(_state.Destination.x, _state.Destination.y, -0.1f);

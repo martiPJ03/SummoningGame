@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
@@ -22,6 +23,9 @@ public class OrderIndicatorState : MonoBehaviour
     // ── Path corners capturats durant la pausa ────────────────────────────────
     public Vector3[] StoredCorners { get; private set; }
 
+    // ── Path points per a multi-waypoint paths ────────────────────────────────
+    public List<Vector2> PathPoints { get; private set; }
+
     // ── Visibilitat ───────────────────────────────────────────────────────────
     public bool IsActive { get; private set; } = false;
 
@@ -37,6 +41,19 @@ public class OrderIndicatorState : MonoBehaviour
         FacingLocked = facingDir.sqrMagnitude > 0.001f;
         FacingDir = FacingLocked ? facingDir.normalized : Vector2.up;
         StoredCorners = null;
+        PathPoints = null;
+        IsActive = true;
+    }
+
+    public void SetMultiWaypointMove(Vector3 destination, List<Vector2> pathPoints)
+    {
+        CurrentOrder = OrderType.Move;
+        Destination = destination;
+        AttackTarget = null;
+        FacingLocked = false;
+        FacingDir = Vector2.up;
+        StoredCorners = null;
+        PathPoints = new List<Vector2>(pathPoints);
         IsActive = true;
     }
 
@@ -48,6 +65,7 @@ public class OrderIndicatorState : MonoBehaviour
         FacingLocked = false;
         FacingDir = Vector2.up;
         StoredCorners = null;
+        PathPoints = null;
         IsActive = true;
     }
 
@@ -61,6 +79,7 @@ public class OrderIndicatorState : MonoBehaviour
         CurrentOrder = OrderType.None;
         AttackTarget = null;
         StoredCorners = null;
+        PathPoints = null;
         IsActive = false;
     }
 }

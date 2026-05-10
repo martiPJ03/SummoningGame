@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -19,6 +20,7 @@ public class OrderPathLine : MonoBehaviour
     private LineRenderer _pathLine;
     private NavMeshAgent _agent;
     private OrderIndicatorState _state;
+    private Unit _unit;
 
     // ─────────────────────────────────────────────────────────────────────────
     //  LIFECYCLE
@@ -28,6 +30,7 @@ public class OrderPathLine : MonoBehaviour
     {
         _state = GetComponent<OrderIndicatorState>();
         _agent = GetComponent<NavMeshAgent>();
+        _unit = GetComponent<Unit>();
         BuildLineRenderer();
         SetLineVisible(false);
     }
@@ -41,6 +44,16 @@ public class OrderPathLine : MonoBehaviour
         if (!_state.IsActive) { SetLineVisible(false); return; }
 
         SetLineVisible(true);
+
+        if (_state.PathPoints != null && _state.PathPoints.Count > 0)
+        {
+            int fromIndex = (_unit != null && _unit.IsFollowingPath)
+                ? _unit.CurrentWaypointIndex
+                : _state.PathPoints.Count; // si ya terminó, no renderizar nada
+
+            RenderMultiWaypointPath(_state.PathPoints, fromIndex);
+            return;
+        }
 
         bool frozen = TacticalPauseManager.Instance != null
                    && TacticalPauseManager.Instance.IsPaused;
@@ -88,6 +101,26 @@ public class OrderPathLine : MonoBehaviour
     // ─────────────────────────────────────────────────────────────────────────
     //  RENDERITZAT
     // ─────────────────────────────────────────────────────────────────────────
+
+    void RenderMultiWaypointPath(List<Vector2> waypoints, int fromIndex)
+    {
+        int remaining = waypoints.Count - fromIndex;
+        if (remaining <= 0) { _pathLine.positionCount = 0; return; }
+
+        // unit position + remaining waypoints
+        var positions = new Vector3[remaining + 1];
+        positions[0] = new Vector3(transform.position.x, transform.position.y, -0.1f);
+
+        for (int i = 0; i < remaining; i++)
+        {
+            var wp = waypoints[fromIndex + i];
+            positions[i + 1] = new Vector3(wp.x, wp.y, -0.1f);
+        }
+
+        _pathLine.positionCount = positions.Length;
+        for (int i = 0; i < positions.Length; i++)
+            _pathLine.SetPosition(i, positions[i]);
+    }
 
     void RenderCorners(Vector3[] corners)
     {

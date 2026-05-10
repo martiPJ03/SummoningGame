@@ -129,6 +129,8 @@ public class Unit : MonoBehaviour
     protected List<Vector3> currentPathPoints = new List<Vector3>();
     protected int currentWaypointIndex = 0;
     protected bool isFollowingPath = false;
+    public bool IsFollowingPath => isFollowingPath;
+    public int CurrentWaypointIndex => currentWaypointIndex; // ← añadir esto
 
     // ───────────────────────────────────────────────────────────────────────
     //  LIFECYCLE
@@ -306,8 +308,9 @@ public class Unit : MonoBehaviour
 
         ClearTarget();
 
-        // Convertimos y guardamos la ruta
-        currentPathPoints = pathPoints.Select(p => new Vector3(p.x, p.y, 0)).ToList();
+        // Guardamos la ruta
+        currentPathPoints = pathPoints.Select(p => new Vector3(p.x, p.y, 0f)).ToList();
+
         currentWaypointIndex = 0;
         isFollowingPath = true;
 

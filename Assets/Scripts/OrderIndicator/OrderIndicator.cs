@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -98,6 +99,17 @@ public class OrderIndicator : MonoBehaviour
         _icon.ShowAttack(_state.Destination);
 
         ApplyColor(ColorAttack);
+        SetAllVisible(true);
+    }
+
+    public void ShowMultiWaypointMove(Vector3 finalDestination, List<Vector2> pathPoints)
+    {
+        _fader.CancelFade();
+        _state.SetMultiWaypointMove(finalDestination, pathPoints);
+
+        _icon.ShowMove(finalDestination, Vector2.zero, false);
+
+        ApplyColor(ColorMove);
         SetAllVisible(true);
     }
 

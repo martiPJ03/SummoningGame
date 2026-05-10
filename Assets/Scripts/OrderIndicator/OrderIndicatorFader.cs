@@ -70,6 +70,24 @@ public class OrderIndicatorFader : MonoBehaviour
 
     bool HasArrived()
     {
+        // Si estamos siguiendo un multi-waypoint path, solo hacer fade cuando:
+        // 1. El NavMeshAgent haya llegado a su destino actual
+        // 2. Y la unidad esté cerca del último waypoint
+        if (_state.PathPoints != null && _state.PathPoints.Count > 0)
+        {
+            // No hacer fade mientras la unidad aún recorre waypoints intermedios
+            if (_unit != null && _unit.IsFollowingPath) return false;
+
+            Vector3 lastWaypoint = _state.PathPoints[_state.PathPoints.Count - 1];
+            float distToFinal = Vector2.Distance(transform.position, lastWaypoint);
+
+            bool agentReachedDest = _agent != null
+                                && !_agent.pathPending
+                                && _agent.remainingDistance <= _agent.stoppingDistance;
+
+            return agentReachedDest && distToFinal < 0.25f;
+        }
+
         bool agentDone = _agent != null
                               && !_agent.pathPending
                               && _agent.remainingDistance <= _agent.stoppingDistance;
