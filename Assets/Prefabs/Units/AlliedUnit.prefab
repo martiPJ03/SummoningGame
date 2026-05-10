@@ -21,6 +21,7 @@ GameObject:
   - component: {fileID: 4526593856483695493}
   - component: {fileID: 3817332766518387858}
   - component: {fileID: 7476574708142695403}
+  - component: {fileID: -1241961690281091968}
   m_Layer: 3
   m_Name: AlliedUnit
   m_TagString: Untagged
@@ -340,6 +341,21 @@ MonoBehaviour:
   shakeMagnitude: 0.08
   showDamageNumbers: 0
   damageNumberPrefab: {fileID: 0}
+--- !u!114 &-1241961690281091968
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 321801668345209287}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 40fc23e8958cb424da087ab8c7aeb55c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UnitManaCost
+  summonCost: 20
+  maintenanceCostPerSecond: 2
+  destroyIfCannotAfford: 1
 --- !u!1 &5923160931599827598
 GameObject:
   m_ObjectHideFlags: 0

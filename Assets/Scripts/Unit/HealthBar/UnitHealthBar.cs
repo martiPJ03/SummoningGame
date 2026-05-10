@@ -37,7 +37,6 @@ public class UnitHealthBar : MonoBehaviour
     {
         _unit = GetComponent<Unit>();
         BuildBar();
-        ApplyColor();
 
         _unit.onHealthChanged.AddListener(OnHealthChanged);
         _unit.onDeath.AddListener(_ =>
@@ -54,7 +53,7 @@ public class UnitHealthBar : MonoBehaviour
 
         _currentFill = Mathf.Lerp(_currentFill, _targetFill,
                                    Time.deltaTime * FillLerpSpeed);
-        UpdateFillScale();
+        BarBuilder.UpdateFillScale(_fill, barWidth, barHeight, _currentFill);
 
         bool show = _targetFill < 0.999f;
         _border.enabled = show;
@@ -77,6 +76,7 @@ public class UnitHealthBar : MonoBehaviour
     void OnHealthChanged(float current, float max)
     {
         _targetFill = (max > 0f) ? Mathf.Clamp01(current / max) : 0f;
+        ApplyColor();
     }
 
     // ─────────────────────────────────────────────────────────────────────
@@ -85,51 +85,20 @@ public class UnitHealthBar : MonoBehaviour
 
     void BuildBar()
     {
-        Sprite px = CreatePixelSprite();
-
-        // Root: child de la unitat, posició fixa en Y
-        var root = new GameObject("HealthBar");
-        root.transform.SetParent(null);
-        root.transform.localPosition = new Vector3(0f, yOffset, -0.2f);
-        _barRoot = root.transform;
-
-        float borderPad = barHeight * 0.3f;
-
-        // Border — centrat, lleugerament més gran
-        _border = MakeRenderer(root, "Border", px, borderColor, sortingOrder - 2);
-        _border.transform.localScale = new Vector3(barWidth + borderPad,
-                                                   barHeight + borderPad, 1f);
-        _border.transform.localPosition = Vector3.zero;
-
-        // Background — centrat, mida exacta de la barra
-        _bg = MakeRenderer(root, "BG", px, bgColor, sortingOrder - 1);
-        _bg.transform.localScale = new Vector3(barWidth, barHeight, 1f);
-        _bg.transform.localPosition = Vector3.zero;
-
-        // FIX 2: Fill — pivot al costat esquerre mitjançant posició
-        // El sprite té pivot central (0.5, 0.5). Per simular pivot esquerre:
-        //   posicionem el fill a (-barWidth/2 + fillWidth/2, 0)
-        // Comencem amb fillWidth = barWidth (vida plena) i ho actualitzem a UpdateFillScale
-        _fill = MakeRenderer(root, "Fill", px, Color.white, sortingOrder);
-        _fill.transform.localScale = new Vector3(barWidth, barHeight, 1f);
-        _fill.transform.localPosition = new Vector3(0f, 0f, -0.05f);
-    }
-
-    void UpdateFillScale()
-    {
-        if (_fill == null) return;
-
-        float fillWidth = barWidth * _currentFill;
-
-        // Escalar en X
-        _fill.transform.localScale = new Vector3(fillWidth, barHeight, 1f);
-
-        // Mantenir el pivot a l'esquerra:
-        // centre del fill = -barWidth/2 + fillWidth/2
-        _fill.transform.localPosition = new Vector3(
-            -barWidth * 0.5f + fillWidth * 0.5f,
+        BarBuilder.BuildBar(
+            "HealthBar",
+            barWidth,
+            barHeight,
             0f,
-            -0.05f
+            yOffset,
+            -0.2f,
+            borderColor,
+            bgColor,
+            sortingOrder,
+            out _barRoot,
+            out _border,
+            out _bg,
+            out _fill
         );
     }
 
@@ -141,26 +110,5 @@ public class UnitHealthBar : MonoBehaviour
     {
         if (_fill == null) return;
         _fill.color = (_unit.side == UnitSide.Player) ? allyColor : enemyColor;
-    }
-
-    static SpriteRenderer MakeRenderer(GameObject parent, string name,
-                                       Sprite sprite, Color color, int order)
-    {
-        var go = new GameObject(name);
-        go.transform.SetParent(parent.transform, false);
-        var sr = go.AddComponent<SpriteRenderer>();
-        sr.sprite = sprite;
-        sr.color = color;
-        sr.sortingOrder = order;
-        return sr;
-    }
-
-    static Sprite CreatePixelSprite()
-    {
-        var tex = new Texture2D(1, 1, TextureFormat.RGBA32, false);
-        tex.filterMode = FilterMode.Point;
-        tex.SetPixel(0, 0, Color.white);
-        tex.Apply();
-        return Sprite.Create(tex, new Rect(0, 0, 1, 1), new Vector2(0.5f, 0.5f), 1f);
     }
 }
