@@ -35,7 +35,6 @@ public class AlliedUnit : Unit
     protected override void Awake()
     {
         base.Awake();
-
         // Ocultar indicador de selección por defecto
         if (selectionIndicator != null)
             selectionIndicator.SetActive(false);

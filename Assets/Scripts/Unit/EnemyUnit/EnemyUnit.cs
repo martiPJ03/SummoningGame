@@ -83,6 +83,13 @@ public class EnemyUnit : Unit
         return nearest;
     }
 
+    protected override void Die()
+    {
+        base.Die();
+        if (CombatManager.Instance != null)
+            CombatManager.Instance.CheckVictoryCondition();
+    }
+
     // ─────────────────────────────────────────────────────────────────────────
     //  GIZMO — visualizar rango de detección en editor
     // ─────────────────────────────────────────────────────────────────────────

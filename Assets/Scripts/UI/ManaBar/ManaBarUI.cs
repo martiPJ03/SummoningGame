@@ -113,11 +113,9 @@ public class ManaBarUI : MonoBehaviour
         RefreshNetFlowText();
         RefreshSummonCountText();
 
-        // Mostrar barra només si no està plena
-        bool show = _targetFill < 0.999f;
-        _border.enabled = show;
-        _bg.enabled = show;
-        _fill.enabled = show;
+        _border.enabled = true;
+        _bg.enabled = true;
+        _fill.enabled = true;
     }
 
     void OnDestroy()
