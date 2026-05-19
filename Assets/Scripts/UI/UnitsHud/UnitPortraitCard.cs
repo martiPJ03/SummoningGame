@@ -52,6 +52,9 @@ public class UnitPortraitCard : MonoBehaviour, IPointerClickHandler
         if (nameText != null)
             nameText.text = unit.unitName;
 
+        if (portraitImage != null && unit.portrait != null)
+            portraitImage.sprite = unit.portrait;
+
         // Escuchar cambios de vida
         unit.onHealthChanged.AddListener(OnHealthChanged);
 

@@ -116,6 +116,7 @@ MonoBehaviour:
       m_Calls: []
   selectionIndicator: {fileID: 5923160931599827598}
   showDebugGizmos: 0
+  portrait: {fileID: -4896574528208176399, guid: 3b3c81a3ef09f944da4c70b8aa2b4218, type: 3}
 --- !u!114 &3001972421632667229
 MonoBehaviour:
   m_ObjectHideFlags: 0

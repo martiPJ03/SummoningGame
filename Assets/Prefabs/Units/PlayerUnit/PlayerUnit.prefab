@@ -117,6 +117,7 @@ MonoBehaviour:
       m_Calls: []
   selectionIndicator: {fileID: 5923160931599827598}
   showDebugGizmos: 0
+  portrait: {fileID: 5086921942433824418, guid: ef789da40de7177479323b44cb72b98c, type: 3}
   animator: {fileID: 0}
 --- !u!114 &3001972421632667229
 MonoBehaviour:
@@ -341,7 +342,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &5405270478381064743
 Transform:
   m_ObjectHideFlags: 0
@@ -351,7 +352,7 @@ Transform:
   m_GameObject: {fileID: 5923160931599827598}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: -0.77, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1.5, y: 1, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children: []

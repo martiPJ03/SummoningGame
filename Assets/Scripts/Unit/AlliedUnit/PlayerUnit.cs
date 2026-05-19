@@ -26,9 +26,10 @@ public class PlayerUnit : AlliedUnit
     /// </summary>
     protected override void RotateTowards(Vector2 direction)
     {
-        if (direction.sqrMagnitude < 0.01f) return;
+        base.RotateTowards(direction);
 
-        transform.rotation = Quaternion.identity;
+        spriteRenderer.transform.rotation = Quaternion.identity;
+        if (direction.sqrMagnitude < 0.01f) return;
 
         if (animator != null)
         {

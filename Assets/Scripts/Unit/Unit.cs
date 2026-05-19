@@ -154,6 +154,11 @@ public class Unit : MonoBehaviour
         }
     }
 
+    protected virtual void LateUpdate()
+    {
+
+    }
+
     // ───────────────────────────────────────────────────────────────────────
     //  CONFIGURATION
     // ───────────────────────────────────────────────────────────────────────
@@ -167,7 +172,7 @@ public class Unit : MonoBehaviour
         agent.angularSpeed = 0f;
         agent.acceleration = 20f;
         agent.radius = 0.3f;
-        agent.obstacleAvoidanceType = ObstacleAvoidanceType.NoObstacleAvoidance;
+        agent.obstacleAvoidanceType = ObstacleAvoidanceType.LowQualityObstacleAvoidance;
     }
 
     // ───────────────────────────────────────────────────────────────────────

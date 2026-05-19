@@ -21,6 +21,9 @@ public class AlliedUnit : Unit
     [Header("Debug")]
     public bool showDebugGizmos = false;
 
+    [Header("Portrait")]
+    public Sprite portrait;
+
     // ───────────────────────────────────────────────────────────────────────
     //  PRIVATE STATE
     // ───────────────────────────────────────────────────────────────────────
@@ -37,13 +40,26 @@ public class AlliedUnit : Unit
         base.Awake();
         // Ocultar indicador de selección por defecto
         if (selectionIndicator != null)
+        {
             selectionIndicator.SetActive(false);
+            selectionIndicator.transform.SetParent(null);
+        }
 
         // Registrar evento de muerte para limpiar la selección en SelectionManager
         onDeath.AddListener(deadUnit =>
         {
             SelectionManager.Instance?.RemoveFromSelection(deadUnit as AlliedUnit);
         });
+    }
+
+    protected override void LateUpdate()
+    {
+        base.LateUpdate();
+        if (selectionIndicator != null)
+        {
+            selectionIndicator.transform.position = transform.position + new Vector3(0f, -0.2f, 0.1f);
+            selectionIndicator.transform.rotation = Quaternion.identity;
+        }
     }
 
     // ─────────────────────────────────────────────────────────────────────
