@@ -447,7 +447,7 @@ public class SelectionManager : MonoBehaviour
     //  GESTIÓN DE LA SELECCIÓN
     // ─────────────────────────────────────────────────────────────────────────
 
-    void SelectOnly(AlliedUnit unit)
+    public void SelectOnly(AlliedUnit unit)
     {
         DeselectAll();
         AddToSelection(unit);
@@ -461,7 +461,7 @@ public class SelectionManager : MonoBehaviour
             AddToSelection(unit);
     }
 
-    void AddToSelection(AlliedUnit unit)
+    public void AddToSelection(AlliedUnit unit)
     {
         if (_selected.Contains(unit)) return;
         _selected.Add(unit);

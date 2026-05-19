@@ -1,5 +1,6 @@
 using UnityEngine;
 using TMPro;
+using UnityEngine.UI;
 
 /// <summary>
 /// Barra de maná a la UI del jugador (posició fixa, low center).
@@ -17,30 +18,12 @@ public class ManaBarUI : MonoBehaviour
     // ─────────────────────────────────────────────────────────────────────────
     //  MIDES I POSICIÓ (Inspector)
     // ─────────────────────────────────────────────────────────────────────────
-
-    [Header("Mides (en unitats món)")]
-    public float barWidth = 2.0f;
-    public float barHeight = 0.15f;
-
-    [Header("Posició fixa (mundo-space, low center)")]
-    [Tooltip("Posició X de la barra")]
-    public float barPositionX = 0f;
-
-    [Tooltip("Posició Y de la barra (baixa part de la pantalla)")]
-    public float barPositionY = -4f;
-
     [Header("Colors")]
     [Tooltip("Color quan el maná és alt")]
     public Color highManaColor = new Color(0.25f, 0.55f, 1.00f);   // blau
 
     [Tooltip("Color quan el maná és baix")]
     public Color lowManaColor = new Color(0.70f, 0.15f, 0.85f);    // porpra fosc
-
-    [Tooltip("Color de fons de la barra")]
-    public Color bgColor = new Color(0.08f, 0.08f, 0.08f);
-
-    [Tooltip("Color del border")]
-    public Color borderColor = new Color(0f, 0f, 0f);
 
     [Tooltip("Llindar per considerar maná 'baix' [0..1]")]
     [Range(0f, 0.5f)]
@@ -58,15 +41,14 @@ public class ManaBarUI : MonoBehaviour
 
     [Tooltip("Ex: '3 summons'")]
     public TMP_Text summonCountText;
+    
+    [Tooltip("Posa el Fill'")]
+    public Image manaBarFill;
 
     // ─────────────────────────────────────────────────────────────────────────
     //  ESTAT INTERN
     // ─────────────────────────────────────────────────────────────────────────
 
-    private Transform _barRoot;
-    private SpriteRenderer _border;
-    private SpriteRenderer _bg;
-    private SpriteRenderer _fill;
     private bool _subscribed = false;
 
     private float _currentFill = 1f;
@@ -80,7 +62,6 @@ public class ManaBarUI : MonoBehaviour
 
     void Awake()
     {
-        BuildBar();
     }
 
     void OnEnable()
@@ -95,34 +76,18 @@ public class ManaBarUI : MonoBehaviour
 
     void LateUpdate()
     {
-        if (_barRoot == null) return;
-
-        // Posició fixa (no seguir cap unitat)
-        _barRoot.position = new Vector3(barPositionX, barPositionY, -0.2f);
-
         // Subscripció diferida: ManaSystem pot inicialitzar-se després de la UI
         if (!_subscribed)
             TrySubscribe();
 
-        // Animar el fill
-        _currentFill = Mathf.Lerp(_currentFill, _targetFill,
-                                   Time.unscaledDeltaTime * FillLerpSpeed);
-        BarBuilder.UpdateFillScale(_fill, barWidth, barHeight, _currentFill);
-
         // Actualitzar textos
         RefreshNetFlowText();
         RefreshSummonCountText();
-
-        _border.enabled = true;
-        _bg.enabled = true;
-        _fill.enabled = true;
     }
 
     void OnDestroy()
     {
         Unsubscribe();
-        if (_barRoot != null)
-            Destroy(_barRoot.gameObject);
     }
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -139,7 +104,6 @@ public class ManaBarUI : MonoBehaviour
         // Sincronitzar immediatament amb l'estat actual
         OnManaChanged(ManaManager.Instance.CurrentMana, ManaManager.Instance.maxMana);
         _currentFill = _targetFill; // Evitar animació inicial
-        BarBuilder.UpdateFillScale(_fill, barWidth, barHeight, _currentFill);
         ApplyFillColor(_currentFill);
     }
 
@@ -165,6 +129,7 @@ public class ManaBarUI : MonoBehaviour
             manaValueText.text = $"{Mathf.CeilToInt(current)} / {Mathf.CeilToInt(max)}";
 
         ApplyFillColor(_targetFill);
+        RefreshManaBar(current, max);
     }
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -173,14 +138,22 @@ public class ManaBarUI : MonoBehaviour
 
     void ApplyFillColor(float fill)
     {
-        if (_fill == null) return;
+        if (manaBarFill == null) return;
 
         // Interpolació de color: blau (ple) → porpra (baix)
         float t = fill <= lowManaThreshold
             ? 0f
             : Mathf.InverseLerp(lowManaThreshold, 1f, fill);
 
-        _fill.color = Color.Lerp(lowManaColor, highManaColor, t);
+        manaBarFill.color = Color.Lerp(lowManaColor, highManaColor, t);
+    }
+
+    private void RefreshManaBar(float current, float max)
+    {
+        if (manaBarFill == null || max <= 0f) return;
+
+        float pct = Mathf.Clamp01(current / max);
+        manaBarFill.fillAmount = pct;
     }
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -210,23 +183,4 @@ public class ManaBarUI : MonoBehaviour
     // ─────────────────────────────────────────────────────────────────────
     //  BUILD  (jerarquia plana — sense container intermedi)
     // ─────────────────────────────────────────────────────────────────────
-
-    void BuildBar()
-    {
-        BarBuilder.BuildBar(
-            "ManaBar",
-            barWidth,
-            barHeight,
-            barPositionX,
-            barPositionY,
-            -0.2f,
-            borderColor,
-            bgColor,
-            sortingOrder,
-            out _barRoot,
-            out _border,
-            out _bg,
-            out _fill
-        );
-    }
 }

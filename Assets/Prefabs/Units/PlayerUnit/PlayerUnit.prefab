@@ -115,7 +115,7 @@ MonoBehaviour:
   onDamageDealt:
     m_PersistentCalls:
       m_Calls: []
-  selectionIndicator: {fileID: 0}
+  selectionIndicator: {fileID: 5923160931599827598}
   showDebugGizmos: 0
   animator: {fileID: 0}
 --- !u!114 &3001972421632667229
@@ -341,7 +341,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &5405270478381064743
 Transform:
   m_ObjectHideFlags: 0
