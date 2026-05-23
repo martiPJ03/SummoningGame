@@ -172,7 +172,7 @@ public class Unit : MonoBehaviour
         agent.angularSpeed = 0f;
         agent.acceleration = 20f;
         agent.radius = 0.3f;
-        agent.obstacleAvoidanceType = ObstacleAvoidanceType.LowQualityObstacleAvoidance;
+        agent.obstacleAvoidanceType = ObstacleAvoidanceType.NoObstacleAvoidance;
     }
 
     // ───────────────────────────────────────────────────────────────────────
