@@ -39,6 +39,20 @@ public class UnitHUDBar : MonoBehaviour
     [Tooltip("Si true, busca automáticamente unidades aliadas en Start()")]
     public bool autoDiscover = true;
 
+    [Header("Card Sizing")]
+    [Tooltip("Mida original de la carta (ha de coincidir amb el prefab)")]
+    public float cardBaseWidth = 120f;
+    [Tooltip("Mida mínima a la qual es pot comprimir una carta")]
+    public float cardMinWidth = 48f;
+    [Tooltip("Separació base entre cartes")]
+    public float spacingBase = 8f;
+    [Tooltip("Separació mínima entre cartes")]
+    public float spacingMin = -16f;
+    [Tooltip("Layout Group del contenedor de cartes")]
+    public HorizontalLayoutGroup _layoutGroup;
+    [Tooltip("Rect Transform del propio HUD")]
+    public RectTransform portraitContainerRect;
+
     // ── Estado interno ────────────────────────────────────────────────────────
 
     private readonly List<UnitPortraitCard> _cards = new List<UnitPortraitCard>();
@@ -66,6 +80,7 @@ public class UnitHUDBar : MonoBehaviour
     void LateUpdate()
     {
         SyncSelectionVisuals();
+        RefreshCardSizes();
     }
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -161,5 +176,67 @@ public class UnitHUDBar : MonoBehaviour
                 RegisterUnit(unit);
         }
         Debug.Log($"[UnitHUDBar] Auto-discover: {units.Length} unidades encontradas.");
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    //  REFRESCO DE TAMAÑOS (POR EJEMPLO, PARA DESTACAR SELECCIÓN)
+    // ─────────────────────────────────────────────────────────────────────────
+    void RefreshCardSizes()
+    {
+        int count = _cards.Count(c => c != null);
+        if (count == 0) return;
+
+        // Amplada disponible del HUD
+        float availableWidth = portraitContainerRect.rect.width;
+
+        // Amplada total que necessitaríem sense comprimir
+        float totalNatural = cardBaseWidth * count + spacingBase * (count - 1);
+
+        float targetCardWidth;
+        float targetSpacing;
+
+        if (totalNatural <= availableWidth)
+        {
+            // Hi ha espai suficient: mida natural
+            targetCardWidth = cardBaseWidth;
+            targetSpacing = spacingBase;
+        }
+        else
+        {
+            // Cal comprimir: primer reduïm spacing, després la mida de la carta
+            // Intentem primer amb spacing mínim
+            float totalMinSpacing = cardBaseWidth * count + spacingMin * (count - 1);
+
+            if (totalMinSpacing <= availableWidth)
+            {
+                // Només cal ajustar el spacing
+                targetCardWidth = cardBaseWidth;
+                targetSpacing = (availableWidth - cardBaseWidth * count) / Mathf.Max(1, count - 1);
+                targetSpacing = Mathf.Max(targetSpacing, spacingMin);
+            }
+            else
+            {
+                // Cal comprimir les cartes
+                targetSpacing = spacingMin;
+                float spaceForCards = availableWidth - spacingMin * (count - 1);
+                targetCardWidth = Mathf.Max(cardMinWidth, spaceForCards / count);
+            }
+        }
+
+        // Aplicar spacing al LayoutGroup
+        if (_layoutGroup != null)
+            _layoutGroup.spacing = targetSpacing;
+
+        // Aplicar amplada a cada carta
+        foreach (var card in _cards)
+        {
+            if (card == null) continue;
+            var rt = card.GetComponent<RectTransform>();
+            if (rt == null) continue;
+
+            // Només actualitzem si ha canviat per evitar recalculs de layout constants
+            if (!Mathf.Approximately(rt.sizeDelta.x, targetCardWidth))
+                rt.sizeDelta = new Vector2(targetCardWidth, rt.sizeDelta.y);
+        }
     }
 }
