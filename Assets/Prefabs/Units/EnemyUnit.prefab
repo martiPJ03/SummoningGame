@@ -106,6 +106,8 @@ GameObject:
   - component: {fileID: 3276731293186644952}
   - component: {fileID: 906602560537443843}
   - component: {fileID: 1622672024133907809}
+  - component: {fileID: -3176195850561732141}
+  - component: {fileID: -4814630329575349338}
   m_Layer: 8
   m_Name: EnemyUnit
   m_TagString: Untagged
@@ -222,6 +224,8 @@ MonoBehaviour:
     stoppingDist: 0.9
     hitSlowRatio: 0.33
     hitSlowDuration: 0.5
+    weight: 1
+    collisionSlowFactorMax: 0.6
     dashDistance: 0.35
     dashDuration: 0.25
     flankMultiplier: 1.25
@@ -303,3 +307,42 @@ MonoBehaviour:
   shakeMagnitude: 0.08
   showDamageNumbers: 0
   damageNumberPrefab: {fileID: 0}
+--- !u!50 &-3176195850561732141
+Rigidbody2D:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3549870264182838438}
+  m_BodyType: 0
+  m_Simulated: 1
+  m_UseFullKinematicContacts: 0
+  m_UseAutoMass: 0
+  m_Mass: 1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_GravityScale: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_Interpolate: 0
+  m_SleepingMode: 1
+  m_CollisionDetection: 0
+  m_Constraints: 0
+--- !u!114 &-4814630329575349338
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3549870264182838438}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8206de922afd67045828791140fa61af, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UnitWeightCollision

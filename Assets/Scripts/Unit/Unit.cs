@@ -35,8 +35,9 @@ public class UnitStats
     [Header("Peso")]
     [Tooltip("Peso de la unidad. Afecta la ralentización por contacto")]
     public float weight = 1f;
+    [Tooltip("Factor màximo d'alentiment que pot causar UN sol contacte (0 = sense efecte, 1 = pot arribar a aturar del tot)")]
+    [Range(0f, 1f)] public float collisionSlowFactorMax = 0.6f;
 
-    [Header("Attack Dash")]
     [Tooltip("Distancia máxima del dash en unidades locales del sprite")]
     public float dashDistance = 0.35f;
     [Tooltip("Duración total del dash (ida + vuelta)")]
@@ -93,6 +94,11 @@ public class Unit : MonoBehaviour
     public bool IsDead => State == UnitState.Dead;
     public Unit CurrentTarget { get; protected set; }
 
+    private UnitWeightCollision _weightCollision;
+
+    private float _hitSlowMultiplier = 1f;
+
+
     // ───────────────────────────────────────────────────────────────────────
     //  EVENTS
     // ───────────────────────────────────────────────────────────────────────
@@ -140,13 +146,12 @@ public class Unit : MonoBehaviour
     protected virtual void Awake()
     {
         agent = GetComponent<NavMeshAgent>();
+        _weightCollision = GetComponent<UnitWeightCollision>();
         ConfigureAgent();
         stats.ResetHealth();
 
         if (spriteRenderer != null)
             baseColor = spriteRenderer.color;
-
-        GetComponent<Collider2D>().isTrigger = true;
     }
 
     protected virtual void Update()
@@ -154,7 +159,7 @@ public class Unit : MonoBehaviour
         if (IsDead) return;
 
         attackTimer -= Time.deltaTime;
-        UpdateAgentSpeed();
+        ApplyEffectiveSpeed();
 
         switch (State)
         {
@@ -162,6 +167,12 @@ public class Unit : MonoBehaviour
             case UnitState.Moving: UpdateMoving(); break;
             case UnitState.Attacking: UpdateAttacking(); break;
         }
+    }
+
+    void ApplyEffectiveSpeed()
+    {
+        float weightMultiplier = _weightCollision != null ? _weightCollision.SlowMultiplier : 1f;
+        agent.speed = stats.moveSpeed * _hitSlowMultiplier * weightMultiplier;
     }
 
     protected virtual void LateUpdate()
@@ -376,9 +387,9 @@ public class Unit : MonoBehaviour
 
     private IEnumerator HitSlowRoutine()
     {
-        agent.speed = stats.moveSpeed * stats.hitSlowRatio;
+        _hitSlowMultiplier = stats.hitSlowRatio;
         yield return new WaitForSeconds(stats.hitSlowDuration);
-        agent.speed = stats.moveSpeed;
+        _hitSlowMultiplier = 1f;
         _slowRoutine = null;
     }
 
@@ -453,10 +464,7 @@ public class Unit : MonoBehaviour
         agent.enabled = false;
 
         foreach (var otherUnit in FindObjectsByType<Unit>(FindObjectsSortMode.None))
-        {
             otherUnit.attackersOnMe.Remove(this);
-            otherUnit.contactingUnitsFromOtherSide.Remove(this);
-        }
 
         onDeath?.Invoke(this);
         StartCoroutine(DieRoutine());
