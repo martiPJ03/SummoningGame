@@ -32,6 +32,10 @@ public class UnitStats
     [Range(0f, 1f)] public float hitSlowRatio = 0.33f;
     public float hitSlowDuration = 0.5f;
 
+    [Header("Peso")]
+    [Tooltip("Peso de la unidad. Afecta la ralentización por contacto")]
+    public float weight = 1f;
+
     [Header("Attack Dash")]
     [Tooltip("Distancia máxima del dash en unidades locales del sprite")]
     public float dashDistance = 0.35f;
@@ -109,6 +113,9 @@ public class Unit : MonoBehaviour
     protected List<Unit> attackersOnMe = new List<Unit>();
     protected Color baseColor;
 
+    protected List<Unit> contactingUnitsFromOtherSide = new List<Unit>();
+    protected float contactSlowAmount = 1f;
+
     // ───────────────────────────────────────────────────────────────────────
     //  ROUTINES
     // ───────────────────────────────────────────────────────────────────────
@@ -138,6 +145,8 @@ public class Unit : MonoBehaviour
 
         if (spriteRenderer != null)
             baseColor = spriteRenderer.color;
+
+        GetComponent<Collider2D>().isTrigger = true;
     }
 
     protected virtual void Update()
@@ -145,6 +154,7 @@ public class Unit : MonoBehaviour
         if (IsDead) return;
 
         attackTimer -= Time.deltaTime;
+        UpdateAgentSpeed();
 
         switch (State)
         {
@@ -443,7 +453,10 @@ public class Unit : MonoBehaviour
         agent.enabled = false;
 
         foreach (var otherUnit in FindObjectsByType<Unit>(FindObjectsSortMode.None))
+        {
             otherUnit.attackersOnMe.Remove(this);
+            otherUnit.contactingUnitsFromOtherSide.Remove(this);
+        }
 
         onDeath?.Invoke(this);
         StartCoroutine(DieRoutine());
